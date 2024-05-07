@@ -88,3 +88,23 @@ resdata <- merge(as.data.frame(res), as.data.frame(counts(dds,normalized=T)), by
 names(resdata)[1] <- 'gene'
 head(resdata)
 write.csv(resdata, file="FILENAME_LRT.csv")
+
+
+### VOLCANO PLOTS ###
+
+res <- read.csv("volcano.csv", header=TRUE)#DESeq2 data (differential gene expression)
+head(res)
+
+# Make a basic volcano plot
+with(res, plot(log2FoldChange, -log10(pvalue), pch=20, main="Differential Expression ", xlim=c(-0.6,0.6)),frame=FALSE)
+
+# Add colored points: red if padj<0.05, orange of log2FC>1, green if both)
+with(subset(res, pvalue<.05 ), points(log2FoldChange, -log10(pvalue), pch=20, col="red"))
+with(subset(res, abs(log2FoldChange)>0.25), points(log2FoldChange, -log10(pvalue), pch=20, col="orange"))
+with(subset(res, pvalue<.05 & abs(log2FoldChange)>0.5), points(log2FoldChange, -log10(pvalue), pch=20, col="green"))
+# p-value and log2 fold change cut-offs can be modified
+
+# Label points with the textxy function from the calibrate plot
+library(calibrate)
+with(subset(res, pvalue<.05 & abs(log2FoldChange)>5), textxy(log2FoldChange, -log10(pvalue), labs=gene, cex=.7))
+# p-value and log2 fold change cut-offs can be modified
